@@ -8,6 +8,8 @@ import sessionsRouter from "./routes/sessionsRouter.js";
 import cookieParser from "cookie-parser";
 import passport from "passport";
 import {initializePassport} from "./config/passport.config.js";
+import {sendEmail} from "./mailer.js"
+
 
 dotenv.config();
 
@@ -41,6 +43,7 @@ connectMongo();
 app.use("/api/sessions",sessionsRouter);
 app.use("/api/products", productsRouter);
 app.use("/api/carts", cartsRouter);
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}`);

@@ -5,6 +5,7 @@ import {userModel} from "../models/user.model.js";
 import { cartModel } from "../models/cart.model.js";
 import { createHash, validatePass } from "../utils/hash.js";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+import { sendEmail } from "../mailer.js";
 
 
 const LocalStrategy = local.Strategy;
@@ -35,6 +36,14 @@ passport.use("register", new LocalStrategy(
         cartId: cart._id
       });
 
+      // 👇 Manda el email de confirmación después del registro
+        try {
+          await sendEmail(email, first_name);
+          console.log("📨 Email enviado a", email);
+        } catch (emailErr) {
+          console.error("❌ Error al enviar el email:", emailErr);
+        }
+
       return done(null, newUser);
     } catch (err) {
       return done(err);
@@ -63,7 +72,7 @@ passport.use("login", new LocalStrategy(
 // 🎯 Estrategia JWT para /current
 passport.use("jwt", new JwtStrategy({
   jwtFromRequest: ExtractJwt.fromExtractors([cookieExtractor]),
-  secretOrKey: "jwtSecretKey"
+  secretOrKey: process.env.PASS_TOKEN
 }, async (payload, done) => {
   try {
     const user = await userModel.findById(payload.id);
