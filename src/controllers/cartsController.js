@@ -28,6 +28,12 @@ export const getCartById = async (req, res) => {
 export const addProductToCart = async (req, res) => {
   try {
     const { cid, pid } = req.params;
+
+     const productExists = await productModel.findById(pid);
+    if (!productExists) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
     const cart = await cartModel.findById(cid);
     if (!cart) return res.status(404).json({ error: "Cart not found" });
 
@@ -136,8 +142,14 @@ export const purchaseCart = async (req, res) => {
     const notProcessed = [];
 
     let totalAmount = 0;
-
+    
+    //verificamos si hay productos en el carrito
     for (const item of productsToBuy) {
+      if (!item.product) {
+        notProcessed.push(null);
+        continue;
+      }
+
       const dbProduct = await productModel.findById(item.product._id);
 
       if (dbProduct && dbProduct.stock >= item.quantity) {
@@ -151,18 +163,18 @@ export const purchaseCart = async (req, res) => {
       }
     }
 
-    // Crea el ticket sólo si hay productos comprados
+    // Solo creamos ticket si hay productos comprados
     if (purchasedProducts.length > 0) {
       const ticket = await ticketModel.create({
         code: generateUniqueCode(),
         purchase_datetime: new Date(),
         amount: totalAmount,
-        purchaser: req.user.email, // asegúrate de que `req.user` exista por autenticación
+        purchaser: req.user.email, // Asegúrate de que req.user venga de autenticación
       });
 
-      // Filtra los productos no comprados y actualiza el carrito
-      cart.products = cart.products.filter(item =>
-        notProcessed.includes(item.product._id.toString())
+      // Actualizamos el carrito dejando solo los productos no procesados
+      cart.products = cart.products.filter(
+        (item) => item.product && notProcessed.includes(item.product._id.toString())
       );
       await cart.save();
 
@@ -170,19 +182,17 @@ export const purchaseCart = async (req, res) => {
         status: "success",
         message: "Purchase completed",
         ticket,
-        notProcessed
+        notProcessed,
       });
     } else {
       return res.status(400).json({
         status: "error",
         message: "No products could be processed due to lack of stock",
-        notProcessed
+        notProcessed,
       });
     }
-
   } catch (error) {
     console.error("❌ Error in purchaseCart:", error);
     return res.status(500).json({ status: "error", message: "Internal server error" });
   }
 };
-

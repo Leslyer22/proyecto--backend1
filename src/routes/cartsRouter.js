@@ -18,16 +18,16 @@ router.post("/",auth,authorizeRoles("admin"),createCart);
 
 router.get("/:cid",auth, getCartById);
 
-router.post("/:cid/product/:pid",auth, addProductToCart);
+router.post("/:cid/product/:pid",auth, authorizeRoles("user"),addProductToCart);
 
 
-router.delete("/:cid/products/:pid",auth, authorizeRoles("admin"),deleteProductFromCart);
+router.delete("/:cid/products/:pid",auth,deleteProductFromCart);
 
-router.put("/:cid",auth,authorizeRoles("admin"),updateCart);
+router.put("/:cid",auth,updateCart);
 
-router.put("/:cid/products/:pid",auth,authorizeRoles("admin"),updateProductQuantity);
+router.put("/:cid/products/:pid",auth,updateProductQuantity);
 
-router.delete("/:cid",auth,authorizeRoles("admin"), clearCart);
+router.delete("/:cid",auth, clearCart);
 
 
 router.post("/:cid/purchase", auth, purchaseCart);

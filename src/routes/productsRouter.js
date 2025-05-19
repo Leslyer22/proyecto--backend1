@@ -10,6 +10,7 @@ import{
 import {auth} from "../middleware/auth.js";
 
 import {Router} from "express";
+import { authorizeRoles } from "../middleware/authorizeRoles.js";
 
 const router = Router();
 
@@ -20,12 +21,12 @@ router.get("/",auth, getProducts);
 router.get("/:pid",auth, getProductById);
 
 // POST /api/products => agregar producto
-router.post("/",auth, addProduct);
+router.post("/",auth,authorizeRoles("admin"), addProduct);
 
 // PUT /api/products/:pid => actualizar producto por ID
-router.put("/:pid",auth, updateProduct);
+router.put("/:pid",auth,authorizeRoles("admin"), updateProduct);
 
 // DELETE /api/products/:pid => eliminar producto por ID
-router.delete("/:pid",auth, deleteProduct);
+router.delete("/:pid",auth,authorizeRoles("admin"), deleteProduct);
 
 export default router;
