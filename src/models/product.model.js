@@ -12,7 +12,7 @@ const productSchema = new mongoose.Schema ({
     },
     code:{
         type:String,
-         unique:true
+         unique:true,
     },
     price:{
         type: Number, 

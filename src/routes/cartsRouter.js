@@ -6,7 +6,7 @@ import {
   deleteProductFromCart,
   updateCart,
   updateProductQuantity,
-  clearCart,
+  clearCart, purchaseCart
 } from "../controllers/cartsController.js";
 import{authorizeRoles} from "./../middleware/authorizeRoles.js";
 
@@ -28,5 +28,8 @@ router.put("/:cid",auth,authorizeRoles("admin"),updateCart);
 router.put("/:cid/products/:pid",auth,authorizeRoles("admin"),updateProductQuantity);
 
 router.delete("/:cid",auth,authorizeRoles("admin"), clearCart);
+
+
+router.post("/:cid/purchase", auth, purchaseCart);
 
 export default router;

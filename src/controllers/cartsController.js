@@ -1,4 +1,8 @@
 import {cartModel} from "../models/cart.model.js";
+import { productModel } from "../models/product.model.js";
+import { ticketModel } from "../models/ticket.model.js";
+import { generateUniqueCode } from "../utils/generateCode.js";
+
 
 export const createCart = async (req, res) => {
     
@@ -116,6 +120,69 @@ export const clearCart = async (req, res) => {
     res.json(cart);
   } catch (error) {
     res.status(500).json({ error: "Error clearing cart" });
+  }
+};
+
+
+export const purchaseCart = async (req, res) => {
+  const cartId = req.params.cid;
+
+  try {
+    const cart = await cartModel.findById(cartId).populate("products.product");
+    if (!cart) return res.status(404).json({ message: "Cart not found" });
+
+    const productsToBuy = cart.products;
+    const purchasedProducts = [];
+    const notProcessed = [];
+
+    let totalAmount = 0;
+
+    for (const item of productsToBuy) {
+      const dbProduct = await productModel.findById(item.product._id);
+
+      if (dbProduct && dbProduct.stock >= item.quantity) {
+        dbProduct.stock -= item.quantity;
+        await dbProduct.save();
+
+        purchasedProducts.push(item);
+        totalAmount += item.quantity * dbProduct.price;
+      } else {
+        notProcessed.push(item.product._id);
+      }
+    }
+
+    // Crea el ticket sólo si hay productos comprados
+    if (purchasedProducts.length > 0) {
+      const ticket = await ticketModel.create({
+        code: generateUniqueCode(),
+        purchase_datetime: new Date(),
+        amount: totalAmount,
+        purchaser: req.user.email, // asegúrate de que `req.user` exista por autenticación
+      });
+
+      // Filtra los productos no comprados y actualiza el carrito
+      cart.products = cart.products.filter(item =>
+        notProcessed.includes(item.product._id.toString())
+      );
+      await cart.save();
+
+      return res.status(200).json({
+        status: "success",
+        message: "Purchase completed",
+        ticket,
+        notProcessed
+      });
+    } else {
+      return res.status(400).json({
+        status: "error",
+        message: "No products could be processed due to lack of stock",
+        notProcessed
+      });
+    }
+
+  } catch (error) {
+    console.error("❌ Error in purchaseCart:", error);
+    return res.status(500).json({ status: "error", message: "Internal server error" });
   }
 };
 
