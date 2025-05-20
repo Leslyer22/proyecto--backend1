@@ -57,12 +57,7 @@ router.get("/current",auth, (req, res) => {
   const user = req.user;
   res.json({
     status: "success",
-    user: {
-      id: user._id,
-      first_name: user.first_name,
-      email: user.email,
-      role: user.role
-    }
+    user
   });
 });
 

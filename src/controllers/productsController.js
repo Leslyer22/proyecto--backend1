@@ -1,6 +1,7 @@
 import mongoosePaginate from "mongoose-paginate-v2"
 import {productModel} from "../models/product.model.js"
 
+
 export const getProducts = async (req, res) => {
     try {
       const { limit = 10, page = 1, sort, query } = req.query;
@@ -29,7 +30,9 @@ export const getProducts = async (req, res) => {
       }
   
       // Usamos paginate para obtener resultados
-      const result = await productModel.paginate(filter, options);
+      //const result = await productModel.paginate(filter, options);
+
+      const result = await productService.getProducts(filter, options);
   
       // Construir prevLink y nextLink para la paginación
       const baseUrl = `${req.protocol}://${req.get("host")}${req.baseUrl}${req.path}`;
@@ -63,7 +66,8 @@ export const getProducts = async (req, res) => {
       return res.status(400).json({ status: "error", message: "ID de producto inválido" });
     }
 
-    const product = await productModel.findById(pid);
+    //const product = await productModel.findById(pid);
+    const product = await productService.getProductById(pid);
     
     if (!product) {
       return res.status(404).json({ status: "error", message: "Producto no encontrado" });
@@ -85,7 +89,7 @@ export const addProduct = async (req, res) => {
     }
 
     // status es opcional, por defecto true si no viene
-    const newProduct = await productModel. create({
+    /*const newProduct = await productModel. create({
       title,
       description,
       code,
@@ -94,7 +98,20 @@ export const addProduct = async (req, res) => {
       stock,
       category,
       thumbnails: thumbnails || []
-    });
+    }); */
+
+     const newProductData = {
+      title,
+      description,
+      code,
+      price,
+      status: status !== undefined ? status : true,
+      stock,
+      category,
+      thumbnails: thumbnails || [],
+    };
+
+    const newProduct = await productService.createProduct(newProductData);
 
     res.status(201).json({ status: "success", payload: newProduct });
   } catch (error) {
@@ -118,7 +135,10 @@ export const updateProduct = async (req, res) => {
     // No permitir actualizar _id,por eso borro el campo _id
     delete updateData._id;
 
-    const updatedProduct = await productModel.findByIdAndUpdate(pid, updateData, { new: true });
+    /*const updatedProduct = await productModel.findByIdAndUpdate(pid, updateData, { new: true }); */
+
+const updatedProduct = await productService.updateProduct(pid, updateData);
+
     if (!updatedProduct) {
       return res.status(404).json({ status: "error", message: "Producto no encontrado" });
     }
@@ -134,7 +154,9 @@ export const deleteProduct = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(pid)) {
       return res.status(400).json({ status: "error", message: "ID inválido" });
     }
-    const deleted = await productModel.findByIdAndDelete(pid);
+    //const deleted = await productModel.findByIdAndDelete(pid);
+    const deleted = await productService.deleteProduct(pid);
+
     if (!deleted) {
       return res.status(404).json({ status: "error", message: "Producto no encontrado" });
     }
