@@ -3,6 +3,7 @@ import {initializePassport} from "../config/passport.config.js";
 import passport from "passport";
 import jwt from "jsonwebtoken";
 import {auth} from "../middleware/auth.js"
+import { authorizeRoles } from './../middleware/authorizeRoles.js';
 
 const router = Router();
 

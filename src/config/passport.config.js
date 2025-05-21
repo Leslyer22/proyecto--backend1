@@ -22,7 +22,7 @@ const cookieExtractor = req => req?.cookies?.token;
 passport.use("register", new LocalStrategy(
   { usernameField: "email", passReqToCallback: true },
   async (req, email, password, done) => {
-    const { first_name, last_name, age } = req.body;
+    const { first_name, last_name, age, role } = req.body;
 
     try {
       //const user = await userModel.findOne({ email });
@@ -51,6 +51,7 @@ passport.use("register", new LocalStrategy(
           age,
           password: createHash(password),
           cartId: cart._id,
+          role
         });
 
       // 👇 Manda el email de confirmación después del registro
@@ -96,11 +97,8 @@ passport.use("jwt", new JwtStrategy({
   secretOrKey: process.env.PASS_TOKEN
 }, async (payload, done) => {
   try {
-    //const user = await userModel.findById(payload.id);
-     const user = await userService.findById(payload.id)
-      const userDTO = new UserDTO(user);  
 
-    if (!user) return done(null, false);
+      const userDTO = new UserDTO(payload);  
 
     return done(null, userDTO);
   } catch (err) {

@@ -3,7 +3,7 @@ import { productService } from "../services/productService.js";
 import { ticketService } from "../services/ticketService.js";
 import { generateUniqueCode } from "../utils/generateCode.js";
 
-import { ticketModel } from "../models/ticket.model.js";
+//import { ticketModel } from "../models/ticket.model.js";
 
 
 
@@ -24,7 +24,7 @@ export const getCartById = async (req, res) => {
     const { cid } = req.params;
 
     //const cart = await cartModel.findById(cid).populate("products.product");
-    const cart = await cartService.getCartById(cid).populate("products.product")
+    const cart = await cartService.getCartById(cid);
     if (!cart) return res.status(404).json({ error: "Cart not found" });
     res.json(cart);
   } catch (error) {
@@ -159,7 +159,7 @@ export const purchaseCart = async (req, res) => {
 
   try {
     //const cart = await cartModel.findById(cartId).populate("products.product"); 
-     const cart = await cartService.getCartById(cartId).populate("products.product");
+     const cart = await cartService.getCartById(cartId);
     if (!cart) return res.status(404).json({ message: "Cart not found" });
 
     const productsToBuy = cart.products;
@@ -205,6 +205,7 @@ export const purchaseCart = async (req, res) => {
   amount: totalAmount,
   purchaser: req.user.email
 });
+
 
       // Actualizamos el carrito dejando solo los productos no procesados
       cart.products = cart.products.filter(
