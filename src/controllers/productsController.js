@@ -1,4 +1,5 @@
 import mongoosePaginate from "mongoose-paginate-v2"
+import mongoose from "mongoose";
 import {productModel} from "../models/product.model.js"
 import {productService} from "../services/productService.js"
 
@@ -75,6 +76,7 @@ export const getProducts = async (req, res) => {
     }
     res.json({ status: "success", payload: product });
   } catch (error) {
+      console.error("ERROR DETECTADO:", error);
     res.status(500).json({ status: "error", message: "Error al buscar producto" });
   }
 };

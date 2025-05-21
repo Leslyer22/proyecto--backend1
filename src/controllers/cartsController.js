@@ -35,6 +35,8 @@ export const getCartById = async (req, res) => {
 export const addProductToCart = async (req, res) => {
   try {
     const { cid, pid } = req.params;
+    const { quantity } = req.body;  // venir de postman
+
 
      //const productExists = await productModel.findById(pid);
      const productExists = await productService.getProductById(pid);
@@ -51,16 +53,18 @@ export const addProductToCart = async (req, res) => {
       (p) => p.product.toString() === pid
     );
 
-    if (productIndex !== -1) {
-      cart.products[productIndex].quantity += 1;
-    } else {
-      cart.products.push({ product: pid, quantity: 1 });
-    }
+   if (productIndex !== -1) {
+    cart.products[productIndex].quantity += quantity;  // suma la cantidad correcta
+  } else {
+    cart.products.push({ product: pid, quantity: quantity });
+  }
+
 
     //await cart.save();
      await cartService.saveCart(cart);
     res.json(cart);
   } catch (error) {
+    console.log( "error:",error)
     res.status(500).json({ error: "Error adding product to cart" });
   }
 };
