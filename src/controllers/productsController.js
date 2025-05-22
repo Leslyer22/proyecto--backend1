@@ -169,4 +169,12 @@ export const deleteProduct = async (req, res) => {
   }
 };
 
+//con websockets
 
+export const socketProductEvents = (socket, io) => {
+  socket.on("newProduct", async (data) => {
+    await productService.createProduct(data);
+    const updated = await productService.getProducts({}, { limit: 10, page: 1 });
+    io.emit("updateProducts", updated.docs);
+  });
+};

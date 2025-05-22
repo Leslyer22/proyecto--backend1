@@ -10,10 +10,28 @@ import passport from "passport";
 import {initializePassport} from "./config/passport.config.js";
 import {sendEmail} from "./mailer.js"
 
+import { engine } from "express-handlebars";
+import path from "path";
+import { fileURLToPath } from "url";
+import viewsRouter from "./routes/viewsRouter.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+// Configurar Handlebars
+app.engine("handlebars", engine());
+app.set("view engine", "handlebars");
+app.set("views", path.join(__dirname, "views"));
+
+
+// Servir archivos estáticos
+app.use(express.static(path.join(__dirname, "public")));
+
 
 dotenv.config();
 
-const app = express();
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -41,12 +59,18 @@ connectMongo();
 //router (endpoints)
 
 app.use("/api/sessions",sessionsRouter);
+
 app.use("/api/products", productsRouter);
+
 app.use("/api/carts", cartsRouter);
 
+app.use("/", viewsRouter);
 
-app.listen(PORT, () => {
+
+ 
+/*app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}`);
-});
+}); */
 
 //open("httplocalhost:{PORT}");
+ export default app
