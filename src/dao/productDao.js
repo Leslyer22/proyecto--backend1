@@ -2,11 +2,11 @@ import { productModel } from "../models/product.model.js";
 
 export class ProductDAO {
   static async getProducts(filter, options) {
-    return await productModel.paginate(filter, options);
+    return await productModel.paginate(filter, { ...options, lean: true });
   }
 
   static async getProductById(pid) {
-    return productModel.findById(pid);
+    return productModel.findById(pid).lean();
   }
 
   static async createProduct(data) {

@@ -22,7 +22,7 @@ const app = express();
 // Configurar Handlebars
 app.engine("handlebars", engine());
 app.set("view engine", "handlebars");
-app.set("views", path.join(__dirname, "views"));
+app.set("views", path.join(__dirname, "views")); 
 
 
 // Servir archivos estáticos
@@ -67,6 +67,8 @@ app.use("/api/carts", cartsRouter);
 app.use("/", viewsRouter);
 
 
+ /*lo comento pues le agrego al server.js el servidor con websockets a parte*/
+ //para escuchar el app.js
  
 /*app.listen(PORT, () => {
   console.log(`Server is running on port: ${PORT}`);

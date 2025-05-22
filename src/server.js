@@ -3,7 +3,7 @@ import { Server } from "socket.io";
 import app from "./app.js";
 import { socketProductEvents } from "./controllers/productsController.js";
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT_2 || 3000;
 
 const httpServer = http.createServer(app);
 const io = new Server(httpServer);

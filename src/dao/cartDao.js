@@ -7,11 +7,11 @@ export class CartDAO {
   }
 
   static async getCartById(cid) {
-    return cartModel.findById(cid).populate("products.product");
+    return cartModel.findById(cid).populate("products.product").lean();
   }
 
   static async getCartRaw(cid) {
-    return cartModel.findById(cid);
+    return cartModel.findById(cid).lean();
   }
 
   static async updateCartProducts(cid, products) {
